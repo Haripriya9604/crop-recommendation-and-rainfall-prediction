@@ -1,0 +1,32 @@
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# VS Code settings
+.vscode/
+
+# Streamlit specific
+.streamlit/secrets.toml
+
+data/raw/
+data/tmp/
+
+# Large datasets 
+*.csv
+*.xlsx
+
+# Model checkpoinsts 
+*.pkl
+models/
+
+# OS files
+.DS_Store
+Thumbs.db
+models/
