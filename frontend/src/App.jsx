@@ -1,172 +1,163 @@
-import React, { useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import Dashboard from "./routes/Dashboard";
+// frontend/src/App.jsx
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+
+import Landing from "./routes/Landing";
 import CropForm from "./routes/CropForm";
 import RainfallAnalysis from "./routes/RainfallAnalysis";
-import Landing from "./routes/Landing";
-import { ThemeProvider } from "./context/ThemeContext";
-import "./App.css";
+import Dashboard from "./routes/Dashboard";
 
-function NavItem({ to, label, active, isDark }) {
-  const base =
-    "px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors duration-300";
-  const activeCls = "bg-emerald-500/90 text-slate-900 shadow-sm";
-  const inactiveDark = "text-slate-200 hover:bg-slate-700/80 hover:text-white";
-  const inactiveLight =
-    "text-slate-700 hover:bg-slate-100 hover:text-slate-900";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { PredictionProvider } from "./context/PredictionContext";
+
+function AppShell() {
+  const { isDark, toggleTheme } = useTheme();
+  const [showIntro, setShowIntro] = useState(true);
+
+  // Slower intro: ~2.2s
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 2200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const bgClass = isDark
+    ? "bg-slate-950 text-slate-50"
+    : "bg-slate-100 text-slate-900";
+
+  const cardClass = isDark
+    ? "bg-slate-900/80 border border-slate-700"
+    : "bg-white border border-gray-200";
 
   return (
-    <Link
-      to={to}
-      className={[
-        base,
-        active
-          ? activeCls
-          : isDark
-          ? inactiveDark
-          : inactiveLight,
-      ].join(" ")}
-    >
-      {label}
-    </Link>
+    <div className={`min-h-screen ${bgClass} transition-colors duration-500`}>
+      {/* Intro overlay */}
+      {showIntro && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 text-slate-50">
+          <div className="text-center space-y-4 animate-intro">
+            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300">
+              Smart Farming Studio
+            </p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold">
+              Crop Recommendation &amp; Rainfall Prediction
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto">
+              Initializing models, preparing charts, and setting up your
+              field-ready dashboard...
+            </p>
+            <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>Powered by ML · React · Flask</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <BrowserRouter>
+        {/* Top nav */}
+        <header className="border-b border-slate-800/40 bg-slate-900/70 backdrop-blur sticky top-0 z-20">
+          <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+            <div className="flex flex-col">
+              <h1 className="text-sm sm:text-base font-extrabold text-emerald-400">
+                Crop Recommendation &amp; Rainfall Prediction
+              </h1>
+              <p className="text-[10px] sm:text-xs text-slate-400 font-semibold">
+                Data-driven decisions for smarter farming
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <nav className="hidden sm:flex gap-3 text-xs font-semibold">
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) =>
+                    `px-2 py-1 rounded-md transition-all ${
+                      isActive
+                        ? "bg-emerald-500 text-slate-900"
+                        : "text-slate-300 hover:bg-slate-800/80"
+                    }`
+                  }
+                >
+                  Home
+                </NavLink>
+                <NavLink
+                  to="/crop"
+                  className={({ isActive }) =>
+                    `px-2 py-1 rounded-md transition-all ${
+                      isActive
+                        ? "bg-emerald-500 text-slate-900"
+                        : "text-slate-300 hover:bg-slate-800/80"
+                    }`
+                  }
+                >
+                  Crop
+                </NavLink>
+                <NavLink
+                  to="/rainfall"
+                  className={({ isActive }) =>
+                    `px-2 py-1 rounded-md transition-all ${
+                      isActive
+                        ? "bg-emerald-500 text-slate-900"
+                        : "text-slate-300 hover:bg-slate-800/80"
+                    }`
+                  }
+                >
+                  Rainfall
+                </NavLink>
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) =>
+                    `px-2 py-1 rounded-md transition-all ${
+                      isActive
+                        ? "bg-emerald-500 text-slate-900"
+                        : "text-slate-300 hover:bg-slate-800/80"
+                    }`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+              </nav>
+
+              {/* Theme toggle switch */}
+              <button
+                onClick={toggleTheme}
+                className="relative inline-flex h-6 w-11 items-center rounded-full border border-slate-600 bg-slate-800/80 px-0.5 transition-colors hover:border-emerald-400"
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-emerald-400 shadow-sm transition-transform duration-300 ${
+                    isDark ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main card fades in after intro */}
+        <main
+          className={`max-w-6xl mx-auto px-4 py-6 transform transition-all duration-700 ${
+            showIntro ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"
+          }`}
+        >
+          <div className={`${cardClass} rounded-2xl p-4 sm:p-6 shadow-sm`}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/crop" element={<CropForm />} />
+              <Route path="/rainfall" element={<RainfallAnalysis />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Routes>
+          </div>
+        </main>
+      </BrowserRouter>
+    </div>
   );
 }
 
 function App() {
-  const location = useLocation();
-  const path = location.pathname;
-
-  const [isDark, setIsDark] = useState(true);
-  const toggleTheme = () => setIsDark((prev) => !prev);
-
-  const shellClass = isDark
-    ? "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100"
-    : "min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 text-slate-900";
-
-  const headerClass = isDark
-    ? "bg-slate-900/70 border border-slate-700/70 rounded-2xl shadow-lg shadow-slate-950/60 backdrop-blur-sm"
-    : "bg-white border border-slate-200 rounded-2xl shadow-md";
-
-  const mainCardClass = isDark
-    ? "bg-slate-900/70 border border-slate-800 rounded-2xl shadow-xl shadow-slate-950/60 backdrop-blur-sm"
-    : "bg-white border border-slate-200 rounded-2xl shadow-md";
-
-  const footerTextClass = isDark
-    ? "text-slate-300"
-    : "text-slate-500";
-
-  const subtitleTextClass = isDark
-    ? "text-slate-200"
-    : "text-slate-600";
-
   return (
-    <ThemeProvider isDark={isDark}>
-      <div className={`${shellClass} transition-colors duration-500`}>
-        <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6 flex flex-col gap-4 sm:gap-6">
-          {/* Header */}
-          <header
-            className={`${headerClass} px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-colors duration-500`}
-          >
-            <div className="text-center sm:text-left">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-emerald-500 via-sky-500 to-emerald-300 bg-clip-text text-transparent">
-                Crop Recommendation &amp; Rainfall Prediction
-              </h1>
-              <p
-                className={`text-[11px] sm:text-xs mt-1 font-semibold ${subtitleTextClass}`}
-              >
-                ML-powered decision support for smarter cropping and rainfall insights.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-center sm:justify-end gap-2">
-              {/* Nav */}
-              <nav
-                className={
-                  "flex items-center justify-center gap-2 rounded-full px-2 py-1 border transition-colors duration-500 " +
-                  (isDark
-                    ? "bg-slate-800/60 border-slate-700/70"
-                    : "bg-slate-50 border-slate-200")
-                }
-              >
-                <NavItem
-                  to="/"
-                  label="Home"
-                  active={path === "/"}
-                  isDark={isDark}
-                />
-                <NavItem
-                  to="/dashboard"
-                  label="Dashboard"
-                  active={path === "/dashboard"}
-                  isDark={isDark}
-                />
-                <NavItem
-                  to="/crop"
-                  label="Crop Suggestion"
-                  active={path === "/crop"}
-                  isDark={isDark}
-                />
-                <NavItem
-                  to="/rainfall"
-                  label="Rainfall"
-                  active={path === "/rainfall"}
-                  isDark={isDark}
-                />
-              </nav>
-
-              {/* Theme Toggle Switch */}
-              <div className="flex items-center ml-2">
-                <span
-                  className={`text-xs mr-2 font-semibold transition-colors duration-300 ${
-                    isDark ? "text-slate-300" : "text-slate-600"
-                  }`}
-                >
-                  {isDark ? "Dark" : "Light"}
-                </span>
-                <button
-                  onClick={toggleTheme}
-                  aria-label="Toggle Theme"
-                  className={`relative inline-flex h-6 w-11 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 ${
-                    isDark
-                      ? "bg-emerald-500 ring-offset-slate-900"
-                      : "bg-slate-400 ring-offset-slate-100"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
-                      isDark ? "translate-x-5" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </header>
-
-          {/* Main content */}
-          <main className="flex-1">
-            <div
-              className={`${mainCardClass} px-4 sm:px-6 py-5 sm:py-6 transition-colors duration-500`}
-            >
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/crop" element={<CropForm />} />
-                <Route path="/rainfall" element={<RainfallAnalysis />} />
-              </Routes>
-            </div>
-          </main>
-
-          {/* Footer */}
-          <footer
-            className={`text-center text-[11px] sm:text-xs ${footerTextClass} pb-3 transition-colors duration-500`}
-          >
-            <span className="font-semibold">
-              Crop &amp; Rainfall Intelligence
-            </span>{" "}
-            · Built with Flask, React, and ML models.
-          </footer>
-        </div>
-      </div>
+    <ThemeProvider>
+      <PredictionProvider>
+        <AppShell />
+      </PredictionProvider>
     </ThemeProvider>
   );
 }

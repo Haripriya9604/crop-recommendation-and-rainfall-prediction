@@ -1,32 +1,48 @@
-# Python caches
+# --- Python ---
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.pkl
+*.pickle
 
-# Virtual Environment
-.venv/
+# Virtual environments
 venv/
 env/
+.venv/
 
-# VS Code settings
+# Jupyter
+.ipynb_checkpoints/
+
+# --- ML model files (optional) ---
+*.h5
+*.joblib
+*.pt
+*.pth
+*.onnx
+*.model
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Environment files ---
+.env
+.env.local
+.env.production
+.env.development
+
+# --- Node / React ---
+node_modules/
+build/
+dist/
+.cache/
+*.lock
+
+# --- VS Code ---
 .vscode/
+.history/
 
-# Streamlit specific
-.streamlit/secrets.toml
-
-data/raw/
-data/tmp/
-
-# Large datasets 
-*.csv
-*.xlsx
-
-# Model checkpoinsts 
-*.pkl
-models/
-
-# OS files
+# --- OS Files ---
 .DS_Store
 Thumbs.db
-models/

@@ -22,6 +22,7 @@ export default function Landing() {
     <div className="max-w-5xl mx-auto py-4 sm:py-6 space-y-8">
       {/* Hero section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        {/* Left: title + description */}
         <div className={leftTextClass}>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-500 mb-2">
             SMART AGRICULTURE · ML POWERED
@@ -46,20 +47,20 @@ export default function Landing() {
           <div className="flex flex-wrap gap-3">
             <Link
               to="/dashboard"
-              className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-bold bg-emerald-500 text-slate-900 hover:bg-emerald-400 shadow-sm"
+              className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-bold bg-emerald-500 text-slate-900 shadow-sm hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-300"
             >
               View Analytics Dashboard →
             </Link>
             <Link
               to="/crop"
-              className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-semibold border border-emerald-500 text-emerald-700 dark:text-emerald-200 hover:bg-emerald-500/10"
+              className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-semibold border border-emerald-500 text-emerald-700 dark:text-emerald-200 hover:bg-emerald-500/10 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300"
             >
               Try Crop Recommendation
             </Link>
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-3 text-xs">
-            <div>
+            <div className="transition-all duration-300 hover:-translate-y-0.5">
               <p className="font-extrabold text-emerald-600 dark:text-emerald-300">
                 2
               </p>
@@ -67,7 +68,7 @@ export default function Landing() {
                 ML models (Crop &amp; Rainfall)
               </p>
             </div>
-            <div>
+            <div className="transition-all duration-300 hover:-translate-y-0.5">
               <p className="font-extrabold text-emerald-600 dark:text-emerald-300">
                 10+
               </p>
@@ -75,7 +76,7 @@ export default function Landing() {
                 Input features analyzed
               </p>
             </div>
-            <div>
+            <div className="transition-all duration-300 hover:-translate-y-0.5">
               <p className="font-extrabold text-emerald-600 dark:text-emerald-300">
                 Real-time
               </p>
@@ -86,9 +87,9 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Right side card (kept dark for contrast) */}
+        {/* Right: main info card */}
         <div
-          className={`${rightCardClass} rounded-2xl shadow-lg shadow-slate-950/50 backdrop-blur-sm p-5 sm:p-6 flex flex-col justify-between space-y-4`}
+          className={`${rightCardClass} rounded-2xl shadow-lg shadow-slate-950/50 backdrop-blur-sm p-5 sm:p-6 flex flex-col justify-between space-y-4 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/30`}
         >
           <div>
             <h3 className="text-lg font-bold mb-2">
@@ -112,7 +113,7 @@ export default function Landing() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="bg-slate-900 border border-slate-700 rounded-xl p-3">
+            <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
               <p className="font-bold text-emerald-300 mb-1">
                 Backend
               </p>
@@ -120,7 +121,7 @@ export default function Landing() {
                 Python, Flask, scikit-learn models, joblib.
               </p>
             </div>
-            <div className="bg-slate-900 border border-slate-700 rounded-xl p-3">
+            <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-sky-500/20">
               <p className="font-bold text-sky-300 mb-1">
                 Frontend
               </p>
@@ -142,7 +143,7 @@ export default function Landing() {
 
       {/* How the recommendation works */}
       <section
-        className={`rounded-2xl border px-4 sm:px-6 py-4 sm:py-5 ${
+        className={`rounded-2xl border px-4 sm:px-6 py-4 sm:py-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
           isDark
             ? "bg-slate-900/80 border-slate-700 text-slate-50"
             : "bg-white border-slate-200 text-slate-900"
@@ -156,11 +157,13 @@ export default function Landing() {
           from historical crop and rainfall data. For each new input, it
           predicts:
         </p>
-        <ul className={`list-disc list-inside text-sm space-y-1.5 ${subTextClass} font-semibold`}>
+        <ul
+          className={`list-disc list-inside text-sm space-y-1.5 ${subTextClass} font-semibold`}
+        >
           <li>
-            <span className="font-bold">Rainfall model:</span> Uses{" "}
-            Lag1, Lag2, Lag3 rainfall values and month to estimate expected
-            rainfall for the current month.
+            <span className="font-bold">Rainfall model:</span> Uses Lag1,
+            Lag2, Lag3 rainfall values and month to estimate expected rainfall
+            for the current month.
           </li>
           <li>
             <span className="font-bold">Crop model:</span> Uses soil
@@ -181,7 +184,7 @@ export default function Landing() {
         </p>
       </section>
 
-      {/* Basic crop education */}
+      {/* Basic crop education + “carousel” effect */}
       <section className="space-y-3">
         <h3 className={`text-lg font-extrabold ${leftTextClass}`}>
           Basic Crop Education (for understanding outputs)
@@ -192,9 +195,17 @@ export default function Landing() {
           suitable.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Helper hint for mobile scroll */}
+        <p className={`text-[11px] font-semibold ${subTextClass} md:hidden`}>
+          👉 Swipe horizontally to view all crop cards.
+        </p>
+
+        {/* Mobile: horizontal scroll “carousel”; Desktop: grid */}
+        <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 md:overflow-visible snap-x snap-mandatory pb-2">
           {/* Rice */}
-          <div className={`${eduCardClass} rounded-xl p-4 shadow-sm`}>
+          <div
+            className={`${eduCardClass} rounded-xl p-4 shadow-sm min-w-[260px] snap-center transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/25`}
+          >
             <h4 className="text-base font-bold mb-1">
               Rice (Paddy)
             </h4>
@@ -222,7 +233,9 @@ export default function Landing() {
           </div>
 
           {/* Wheat */}
-          <div className={`${eduCardClass} rounded-xl p-4 shadow-sm`}>
+          <div
+            className={`${eduCardClass} rounded-xl p-4 shadow-sm min-w-[260px] snap-center transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/25`}
+          >
             <h4 className="text-base font-bold mb-1">
               Wheat
             </h4>
@@ -249,7 +262,9 @@ export default function Landing() {
           </div>
 
           {/* Maize */}
-          <div className={`${eduCardClass} rounded-xl p-4 shadow-sm`}>
+          <div
+            className={`${eduCardClass} rounded-xl p-4 shadow-sm min-w-[260px] snap-center transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/25`}
+          >
             <h4 className="text-base font-bold mb-1">
               Maize (Corn)
             </h4>
@@ -279,7 +294,7 @@ export default function Landing() {
 
         {/* Small tips box */}
         <div
-          className={`${eduCardClass} rounded-xl p-4 text-xs font-semibold`}
+          className={`${eduCardClass} rounded-xl p-4 text-xs font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/20`}
         >
           <h4 className="text-sm font-bold mb-2">
             How to use this information

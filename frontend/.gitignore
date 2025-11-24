@@ -1,24 +1,73 @@
-# Logs
-logs
+# ----------------------------------------
+# PYTHON / FLASK
+# ----------------------------------------
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment and secrets
+.env
+*.env
+*.ini
+
+# Model training cache
+*.h5
+*.hdf5
+*.ckpt
+*.pth
+*.joblib
 *.log
+
+# If you want to keep .pkl, do NOT ignore it (your ML models)
+# *.pkl   <-- DO NOT enable this
+
+# ----------------------------------------
+# REACT / VITE FRONTEND
+# ----------------------------------------
+
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Build output
+dist/
+build/
+
+# Cache
+*.cache
+.cache/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ----------------------------------------
+# EDITOR / SYSTEM FILES
+# ----------------------------------------
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# OS files
+Thumbs.db
+Desktop.ini
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+
+# OneDrive conflicts
+* - Copy.*
+* - Conflict.*
+*.tmp

@@ -33,7 +33,9 @@ function StatCard({ title, value, subtitle, isDark }) {
   const subClass = isDark ? "text-slate-300" : "text-gray-800";
 
   return (
-    <div className={`${cardClass} rounded-xl shadow-sm p-4`}>
+    <div
+      className={`${cardClass} rounded-xl shadow-sm p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+    >
       <p
         className={`text-xs uppercase tracking-wide mb-1 font-bold ${titleClass}`}
       >
@@ -170,7 +172,9 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Top section */}
-      <section className={`${cardBase} rounded-xl shadow-sm p-6`}>
+      <section
+        className={`${cardBase} rounded-xl shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+      >
         <h2 className={`text-xl font-extrabold mb-2 ${baseText}`}>
           Project Overview
         </h2>
@@ -210,7 +214,9 @@ export default function Dashboard() {
       {/* Last predictions */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Last crop */}
-        <div className={`${cardBase} rounded-xl shadow-sm p-5 flex flex-col justify-between`}>
+        <div
+          className={`${cardBase} rounded-xl shadow-sm p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+        >
           <div>
             <h3 className={`text-lg font-bold mb-2 ${baseText}`}>
               Last Crop Recommendation
@@ -242,7 +248,7 @@ export default function Dashboard() {
           <div className="mt-4">
             <Link
               to="/crop"
-              className="inline-flex items-center px-3 py-2 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700"
+              className="inline-flex items-center px-3 py-2 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md hover:shadow-blue-500/30 transition-all duration-300"
             >
               Go to Crop Suggestion →
             </Link>
@@ -250,7 +256,9 @@ export default function Dashboard() {
         </div>
 
         {/* Last rainfall */}
-        <div className={`${cardBase} rounded-xl shadow-sm p-5 flex flex-col justify-between`}>
+        <div
+          className={`${cardBase} rounded-xl shadow-sm p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+        >
           <div>
             <h3 className={`text-lg font-bold mb-2 ${baseText}`}>
               Last Rainfall Prediction
@@ -280,7 +288,7 @@ export default function Dashboard() {
           <div className="mt-4">
             <Link
               to="/rainfall"
-              className="inline-flex items-center px-3 py-2 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700"
+              className="inline-flex items-center px-3 py-2 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md hover:shadow-blue-500/30 transition-all duration-300"
             >
               Go to Rainfall Prediction →
             </Link>
@@ -291,7 +299,9 @@ export default function Dashboard() {
       {/* Visual insights */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* NPK doughnut */}
-        <div className={`${cardBase} rounded-xl shadow-sm p-4 flex flex-col`}>
+        <div
+          className={`${cardBase} rounded-xl shadow-sm p-4 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+        >
           <h3 className={`text-sm font-bold mb-2 ${baseText}`}>
             Soil NPK Distribution
           </h3>
@@ -307,7 +317,9 @@ export default function Dashboard() {
         </div>
 
         {/* Lag rainfall pie */}
-        <div className={`${cardBase} rounded-xl shadow-sm p-4 flex flex-col`}>
+        <div
+          className={`${cardBase} rounded-xl shadow-sm p-4 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+        >
           <h3 className={`text-sm font-bold mb-2 ${baseText}`}>
             Lag Rainfall Composition
           </h3>
@@ -323,7 +335,9 @@ export default function Dashboard() {
         </div>
 
         {/* Rainfall bar chart */}
-        <div className={`${cardBase} rounded-xl shadow-sm p-4 flex flex-col`}>
+        <div
+          className={`${cardBase} rounded-xl shadow-sm p-4 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+        >
           <h3 className={`text-sm font-bold mb-2 ${baseText}`}>
             Lag vs Predicted Rainfall
           </h3>
@@ -340,7 +354,9 @@ export default function Dashboard() {
       </section>
 
       {/* How to use */}
-      <section className={`${cardBase} rounded-xl shadow-sm p-6`}>
+      <section
+        className={`${cardBase} rounded-xl shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
+      >
         <h3 className={`text-lg font-bold mb-3 ${baseText}`}>
           How to Use
         </h3>
