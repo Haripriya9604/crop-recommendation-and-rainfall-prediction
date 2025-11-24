@@ -1,203 +1,155 @@
-from flask import Flask, request, jsonify, render_template
-from pathlib import Path
-import sys
-import numpy as np
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import os
 import joblib
-import pandas as pd
+import numpy as np
 
-# ---------- Paths & config ----------
-APP_DIR = Path(__file__).resolve().parent
-PROJECT_DIR = APP_DIR.parent
+# Flask app setup
 
-sys.path.insert(0, str(PROJECT_DIR / "src"))
-sys.path.insert(0, str(PROJECT_DIR))
+app = Flask(__name__)
+CORS(app)  # allow React frontend to call this API
 
-import project_config as cfg  # your existing config
+# BASE_DIR = src folder, PROJECT_ROOT = main project root, MODELS_DIR = /models
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
 
-app = Flask(
-    __name__,
-    template_folder=str(APP_DIR / "templates"),
-    static_folder=str(APP_DIR / "static"),
-)
+# 👇 Change the filename here if your file is different
+CROP_MODEL_PATH = os.path.join(MODELS_DIR, "crop_model.pkl")
 
-# ---------- Load models & data ----------
-rf_rain = joblib.load(cfg.RAINFALL_MODEL_PATH)
-rf_crop = joblib.load(cfg.CROP_MODEL_PATH)
-
-df_crop = pd.read_csv(cfg.CROP_CSV)
-df_rain = pd.read_csv(cfg.RAINFALL_CSV, sep=";")
-df_rain.columns = df_rain.columns.str.replace('"', "")
+try:
+    crop_model = joblib.load(CROP_MODEL_PATH)
+    print(f"[INFO] Loaded crop model from {CROP_MODEL_PATH}")
+except Exception as e:
+    print("[ERROR] Could not load crop model:", e)
+    crop_model = None
 
 
-# ---------- Helpers ----------
-def prepare_rain_data(df: pd.DataFrame):
-    daily_cols = [c for c in cfg.DAILY_COLS if c in df.columns]
-    rain = df[[cfg.STATE_COL, cfg.DIST_COL, cfg.MONTH_COL] + daily_cols].copy()
-
-    for c in daily_cols:
-        rain[c] = pd.to_numeric(rain[c], errors="coerce")
-
-    rain["total_rainfall"] = rain[daily_cols].sum(axis=1)
-    rain = rain.sort_values([cfg.STATE_COL, cfg.DIST_COL, cfg.MONTH_COL])
-
-    rain["lag1"] = rain.groupby([cfg.STATE_COL, cfg.DIST_COL])["total_rainfall"].shift(1)
-    rain["lag2"] = rain.groupby([cfg.STATE_COL, cfg.DIST_COL])["total_rainfall"].shift(2)
-    rain["lag3"] = rain.groupby([cfg.STATE_COL, cfg.DIST_COL])["total_rainfall"].shift(3)
-
-    rain = rain.dropna(subset=["lag1", "lag2", "lag3"])
-
-    feature_cols = [cfg.MONTH_COL, "lag1", "lag2", "lag3"]
-    X = rain[feature_cols]
-    y = rain["total_rainfall"]
-    return rain, X, y, feature_cols
+# -------------------------------------------------
+# Routes
+# -------------------------------------------------
+@app.route("/", methods=["GET"])
+def index():
+    """Simple health check."""
+    return jsonify({"status": "ok", "message": "Flask API running"}), 200
 
 
-def predict_rainfall(month, lag1, lag2, lag3) -> float:
-    X = np.array([[month, lag1, lag2, lag3]])
-    return float(rf_rain.predict(X)[0])
+@app.route("/api/recommend-crop", methods=["POST"])
+def recommend_crop():
+    """
+    Crop recommendation endpoint.
 
+    Frontend sends:
+    {
+      "month": 11,
+      "lag1": 60,
+      "lag2": 55,
+      "lag3": 50,
+      "N": 60,
+      "P": 40,
+      "K": 50,
+      "temperature": 23,
+      "humidity": 55,
+      "pH": 6.2
+    }
 
-def predict_crop_with_probs(N, P, K, T, H, pH, rainfall):
-    X = np.array([[N, P, K, T, H, pH, rainfall]])
-    probs = rf_crop.predict_proba(X)[0]
-    classes = rf_crop.classes_
+    Model expects 7 features (likely: N, P, K, temperature, humidity, pH, rainfall).
+    We'll estimate rainfall from lag values for now.
+    """
+    try:
+        if crop_model is None:
+            return jsonify({"error": "Crop model not loaded"}), 500
 
-    idx_sorted = np.argsort(probs)[::-1]
-    main_idx = idx_sorted[0]
-    main_crop = classes[main_idx]
-    main_score = float(probs[main_idx] * 100)
+        data = request.get_json(force=True)
+        print("Received data:", data)
 
-    top3 = []
-    for i in idx_sorted[:3]:
-        top3.append(
-            {
-                "crop": str(classes[i]),
-                "score": float(probs[i] * 100),
-            }
+        # Extract inputs
+        month = float(data["month"])
+        lag1 = float(data["lag1"])
+        lag2 = float(data["lag2"])
+        lag3 = float(data["lag3"])
+        N = float(data["N"])
+        P = float(data["P"])
+        K = float(data["K"])
+        temperature = float(data["temperature"])
+        humidity = float(data["humidity"])
+        pH = float(data["pH"])
+
+        # 🔹 Estimate rainfall from lag values (simple average for now)
+        rainfall_est = (lag1 + lag2 + lag3) / 3.0
+
+        # ⚠️ IMPORTANT: Order must match how you trained the model.
+        # Assuming: [N, P, K, temperature, humidity, pH, rainfall]
+        features = np.array(
+            [[N, P, K, temperature, humidity, pH, rainfall_est]],
+            dtype=float,
         )
 
-    return main_crop, main_score, top3
+        # Now features has shape (1, 7) which matches the model
+        pred = crop_model.predict(features)[0]
 
+        response = {"crop": str(pred)}
 
-def make_advice(crop, rainfall):
-    crop = str(crop).lower()
-    if rainfall > 250:
-        rain_desc = "Very high rainfall – ensure good drainage and flood protection."
-    elif rainfall > 150:
-        rain_desc = "Good monsoon rainfall – ideal for water-loving crops."
-    elif rainfall > 80:
-        rain_desc = "Moderate rainfall – monitor soil moisture regularly."
-    else:
-        rain_desc = "Low rainfall – consider irrigation or drought-tolerant crops."
+        #confidence/top3 if available
+        if hasattr(crop_model, "predict_proba"):
+            probs = crop_model.predict_proba(features)[0]
+            max_conf = float(np.max(probs))
+            response["confidence"] = max_conf
 
-    if crop in {"rice", "paddy"}:
-        crop_note = "Rice prefers standing water and heavy monsoon conditions."
-    elif crop in {"banana", "coconut", "sugarcane"}:
-        crop_note = "This crop suits warm, humid climates with good rainfall."
-    elif crop in {"chickpea", "lentil", "blackgram", "mungbean"}:
-        crop_note = "Pulses are often suitable for relatively drier conditions."
-    elif crop in {"coffee"}:
-        crop_note = "Coffee prefers cool, high-rainfall hilly regions."
-    else:
-        crop_note = "Match local soil type and management practices for best yield."
+            classes = crop_model.classes_
+            top3_idx = np.argsort(probs)[::-1][:3]
+            top3_labels = [str(classes[i]) for i in top3_idx]
+            response["top3"] = top3_labels
 
-    return f"{rain_desc} {crop_note}"
+        return jsonify(response), 200
 
+    except KeyError as e:
+        msg = f"Missing field in request: {e}"
+        print(msg)
+        return jsonify({"error": msg}), 400
+    except Exception as e:
+        print("Error in /api/recommend-crop:", e)
+        return jsonify({"error": str(e)}), 500
+@app.route("/api/predict-rainfall", methods=["POST"])
+def predict_rainfall():
+    """
+    Simple rainfall prediction endpoint.
 
-# ---------- Routes ----------
+    Expects:
+    {
+      "month": 11,
+      "lag1": 60,
+      "lag2": 55,
+      "lag3": 50
+    }
 
-@app.route("/")
-def home():
-    # Home page: basic info
-    # simple crop stats to show on cards
-    crop_counts = df_crop[cfg.CROP_TARGET_COL].value_counts().sort_index()
-    num_crops = crop_counts.shape[0]
-    num_rows = df_crop.shape[0]
-    return render_template(
-        "home.html",
-        num_crops=num_crops,
-        num_rows=num_rows,
-        top_crops=list(crop_counts.index[:6]),
-    )
+    Currently just returns average of lag1–lag3 as a basic estimate.
+    You can replace this logic later with your trained rainfall model.
+    """
+    try:
+        data = request.get_json(force=True)
+        print("Rainfall request:", data)
 
+        month = float(data["month"])
+        lag1 = float(data["lag1"])
+        lag2 = float(data["lag2"])
+        lag3 = float(data["lag3"])
 
-@app.route("/predict")
-def predict_page():
-    # shows the form UI – JS will call /api/predict
-    return render_template("predict.html")
+        rainfall_est = (lag1 + lag2 + lag3) / 3.0
 
+        return jsonify({
+            "rainfall": rainfall_est,
+            "unit": "mm",
+            "note": "Simple average of lag values (placeholder model)"
+        }), 200
 
-@app.route("/dashboard")
-def dashboard():
-    # Build some data for visualizations
-    # 1) Crop distribution
-    crop_counts = df_crop[cfg.CROP_TARGET_COL].value_counts().sort_index()
-    crop_labels = list(crop_counts.index)
-    crop_values = [int(v) for v in crop_counts.values]
-
-    # 2) Rainfall by month (average)
-    rain_prepared, Xr, yr, features_r = prepare_rain_data(df_rain)
-    month_avg = rain_prepared.groupby(cfg.MONTH_COL)["total_rainfall"].mean().sort_index()
-    month_labels = [int(m) for m in month_avg.index]
-    month_values = [float(v) for v in month_avg.values]
-
-    # 3) Feature importance for crop model
-    crop_feat_importance = list(rf_crop.feature_importances_)
-    crop_feat_labels = list(cfg.CROP_FEATURE_COLS)
-
-    return render_template(
-        "dashboard.html",
-        crop_labels=crop_labels,
-        crop_values=crop_values,
-        month_labels=month_labels,
-        month_values=month_values,
-        crop_feat_labels=crop_feat_labels,
-        crop_feat_importance=crop_feat_importance,
-    )
-
-
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
-
-# ---------- API for prediction ----------
-
-@app.route("/api/predict", methods=["POST"])
-def api_predict():
-    data = request.json
-
-    month = int(data["month"])
-    lag1 = float(data["lag1"])
-    lag2 = float(data["lag2"])
-    lag3 = float(data["lag3"])
-
-    N = float(data["N"])
-    P = float(data["P"])
-    K = float(data["K"])
-    T = float(data["T"])
-    H = float(data["H"])
-    pH = float(data["pH"])
-
-    # 1) Rainfall
-    pred_rain = predict_rainfall(month, lag1, lag2, lag3)
-
-    # 2) Crop + alternatives
-    main_crop, main_score, top3 = predict_crop_with_probs(N, P, K, T, H, pH, pred_rain)
-
-    # 3) Advice
-    advice = make_advice(main_crop, pred_rain)
-
-    return jsonify(
-        {
-            "predicted_rainfall": pred_rain,
-            "main_crop": str(main_crop),
-            "main_crop_score": main_score,
-            "alternatives": top3,
-            "advice": advice,
-        }
-    )
-
-
+    except KeyError as e:
+        msg = f"Missing field in request: {e}"
+        print(msg)
+        return jsonify({"error": msg}), 400
+    except Exception as e:
+        print("Error in /api/predict-rainfall:", e)
+        return jsonify({"error": str(e)}), 500
 if __name__ == "__main__":
-    app.run(debug=True)
+    # React calls http://127.0.0.1:5000
+    app.run(host="127.0.0.1", port=5000, debug=True)
