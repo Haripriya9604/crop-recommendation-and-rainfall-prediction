@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Smart Agro Assistant 🌾 – Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <!-- NAVBAR -->
+    <nav class="nav">
+      <div class="nav-left">
+        <span class="nav-logo">🌾</span>
+        <span class="nav-title">Smart Agro Assistant</span>
+      </div>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="{{ url_for('home') }}" class="nav-link nav-link-active">Home</a>
+          <a href="{{ url_for('predict_page') }}" class="nav-link">Predict</a>
+          <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+          <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero reveal" data-reveal-delay="0s">
+      <div class="hero-text">
+        <h1>Data-driven crop planning for smarter agriculture.</h1>
+        <p>
+          Smart Agro Assistant helps farmers and students choose suitable crops
+          using rainfall, soil nutrients, and weather information.
+        </p>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="single-column">
+      <section class="card reveal" data-reveal-delay="0.02s">
+        <h2>🌱 What does this tool do?</h2>
+        <p>
+          This web app combines two machine learning models:
+        </p>
+        <ul>
+          <li>
+            <b>Rainfall prediction:</b> predicts upcoming monthly rainfall using
+            the last 3 months’ rainfall.
+          </li>
+          <li>
+            <b>Crop recommendation:</b> suggests crops based on NPK, pH, temperature,
+            humidity and predicted rainfall.
+          </li>
+        </ul>
+        <p class="card-subtitle">
+          Farmers can use this as a support tool and confirm decisions with local agriculture officers.
+        </p>
+      </section>
+
+      <section class="card reveal" data-reveal-delay="0.08s">
+        <h2>📊 Dataset Snapshot</h2>
+        <div class="card-row">
+          <div>
+            <h3>Total crops covered</h3>
+            <p><b>{{ num_crops }}</b> different crop labels</p>
+            <p class="card-subtitle">Examples: rice, maize, chickpea, banana, coffee, and more.</p>
+          </div>
+          <div>
+            <h3>Total records</h3>
+            <p><b>{{ num_rows }}</b> soil–climate–crop combinations</p>
+            <p class="card-subtitle">Each record represents one crop under a specific set of conditions.</p>
+          </div>
+          <div>
+            <h3>Sample crops</h3>
+            <p>
+              {% for c in top_crops %}
+                <span>{{ c }}</span>{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            <p class="card-subtitle">Explore how these crops behave in the Dashboard.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card reveal" data-reveal-delay="0.16s">
+        <h2>🚀 How to use</h2>
+        <ol>
+          <li>Go to the <b>Predict</b> page and enter rainfall + soil details.</li>
+          <li>Click <b>Predict</b> to get rainfall estimate and crop recommendation.</li>
+          <li>Visit the <b>Dashboard</b> to understand how the model works on the full dataset.</li>
+        </ol>
+      </section>
+
+      <section class="card reveal" data-reveal-delay="0.24s">
+        <h2>❓ Common Farmer Questions</h2>
+        <ul>
+          <li><b>Do I need exact rainfall values?</b> No, you can use approximate values from local records or guidance.</li>
+          <li><b>Do I need a soil test?</b> It’s recommended, but you can still try the tool with typical values.</li>
+          <li><b>Does this replace an agriculture officer?</b> No. This is a support tool; final decisions should be taken with experts.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>Smart Agro Assistant · Home</small>
+    </footer>
+  </div>
+
+  <!-- Scroll reveal + shared JS -->
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

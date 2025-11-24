@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Smart Agro Assistant 🌾</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+
+    <!-- Nav -->
+    <nav class="nav">
+      <div class="nav-left">
+        <span class="nav-logo">🌾</span>
+        <span class="nav-title">Smart Agro Assistant</span>
+      </div>
+      <div class="nav-right">
+        <span class="nav-pill">ML Powered</span>
+        <span class="nav-pill-soft">Rainfall + Crop Recommendation</span>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+      <div class="hero-text">
+        <h1>Plan your crop with confidence.</h1>
+        <p>
+          Enter your recent rainfall and soil details to get a monthly rainfall forecast,
+          a recommended crop, and top alternative options based on your conditions.
+        </p>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main-grid">
+
+      <!-- Left column: Inputs -->
+      <section class="column">
+        <section class="card">
+          <h2>1️⃣ Rainfall History</h2>
+          <p class="card-subtitle">Use last 3 months rainfall to forecast upcoming rainfall.</p>
+          <div class="grid">
+            <label>Month (1–12)
+              <input type="number" id="month" min="1" max="12" value="7">
+            </label>
+            <label>Last month rainfall (mm)
+              <input type="number" id="lag1" value="200">
+            </label>
+            <label>2 months ago (mm)
+              <input type="number" id="lag2" value="150">
+            </label>
+            <label>3 months ago (mm)
+              <input type="number" id="lag3" value="100">
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>2️⃣ Soil & Climate</h2>
+          <p class="card-subtitle">Describe your soil nutrients and current weather.</p>
+          <div class="grid">
+            <label>N (Nitrogen)
+              <input type="number" id="N" value="90">
+            </label>
+            <label>P (Phosphorus)
+              <input type="number" id="P" value="40">
+            </label>
+            <label>K (Potassium)
+              <input type="number" id="K" value="40">
+            </label>
+            <label>Temperature (°C)
+              <input type="number" id="T" value="25">
+            </label>
+            <label>Humidity (%)
+              <input type="number" id="H" value="60">
+            </label>
+            <label>pH
+              <input type="number" id="pH" step="0.1" value="6.5">
+            </label>
+          </div>
+        </section>
+
+        <button id="predict-btn" class="primary-btn">
+          ✨ Predict Rainfall & Recommend Crop
+        </button>
+        <p class="hint-text">Tip: try varying rainfall and NPK to see how crop choices change.</p>
+      </section>
+
+      <!-- Right column: Results & insights -->
+      <section class="column">
+
+        <section class="card result-wrapper">
+          <h2>3️⃣ Results</h2>
+          <div class="results">
+            <div class="result-card">
+              <h3>🌧️ Predicted Rainfall</h3>
+              <p id="rain-result">—</p>
+              <small id="rain-note" class="small-muted">Run a prediction to view rainfall estimate.</small>
+            </div>
+            <div class="result-card">
+              <h3>🌱 Recommended Crop</h3>
+              <p id="crop-result">—</p>
+              <div id="suitability-pill" class="suitability-pill hidden">
+                Suitability score: <span id="suitability-score">—</span>%
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>🌾 Top Alternatives</h2>
+          <p class="card-subtitle">Other crops that also suit your conditions.</p>
+          <ul id="alt-list" class="alt-list">
+            <li class="alt-placeholder">Run a prediction to see alternative crops.</li>
+          </ul>
+        </section>
+
+        <section class="card log-card">
+          <div class="log-header">
+            <h3>📝 Advisory Note</h3>
+            <span class="log-tag">For farmers & reports</span>
+          </div>
+          <p id="advice-text" class="advice-text">
+            Click "Predict" to view a short advisory note based on rainfall and crop.
+          </p>
+        </section>
+
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>Made by Haripriya SK · Smart Agro Assistant – Crop Recommendation & Rainfall Prediction</small>
+    </footer>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

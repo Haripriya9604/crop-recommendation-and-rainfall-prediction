@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Smart Agro Assistant 🌾 – Predict</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <!-- NAVBAR -->
+    <nav class="nav">
+      <div class="nav-left">
+        <span class="nav-logo">🌾</span>
+        <span class="nav-title">Smart Agro Assistant</span>
+      </div>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+          <a href="{{ url_for('predict_page') }}" class="nav-link nav-link-active">Predict</a>
+          <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+          <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="hero">
+      <div class="hero-text">
+        <h1>Make a prediction.</h1>
+        <p>
+          Enter rainfall history and soil parameters to get a rainfall forecast
+          and a smart crop recommendation.
+        </p>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="columns reveal" data-reveal-delay="0s">
+      <!-- LEFT COLUMN: INPUTS -->
+      <section class="single-column">
+        <section class="card">
+          <h2>1️⃣ Recent Rainfall in Your Area</h2>
+          <p class="card-subtitle">
+            Approximate rainfall (mm) for your area over the last three months.
+          </p>
+          <div class="grid">
+            <label>Month (1–12)
+              <input type="number" id="month" min="1" max="12" value="7">
+            </label>
+            <label>Last month rainfall (mm)
+              <input type="number" id="lag1" value="200">
+            </label>
+            <label>2 months ago (mm)
+              <input type="number" id="lag2" value="150">
+            </label>
+            <label>3 months ago (mm)
+              <input type="number" id="lag3" value="100">
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>2️⃣ Soil and Weather Details</h2>
+          <p class="card-subtitle">
+            Basic soil nutrients and current weather. If you don’t know exact NPK, you can use approximate values suggested by an officer.
+          </p>
+          <div class="grid">
+            <label>N (Nitrogen)
+              <input type="number" id="N" value="90">
+            </label>
+            <label>P (Phosphorus)
+              <input type="number" id="P" value="40">
+            </label>
+            <label>K (Potassium)
+              <input type="number" id="K" value="40">
+            </label>
+            <label>Temperature (°C)
+              <input type="number" id="T" value="25">
+            </label>
+            <label>Humidity (%)
+              <input type="number" id="H" value="60">
+            </label>
+            <label>pH
+              <input type="number" id="pH" step="0.1" value="6.5">
+            </label>
+          </div>
+        </section>
+
+        <button id="predict-btn" class="primary-btn">
+          ✨ Predict Rainfall & Recommend Crop
+        </button>
+
+        <button id="print-btn" class="primary-btn" style="margin-top:0.7rem; background:linear-gradient(135deg,#4b5563,#111827); box-shadow:none;">
+          🖨️ Print / Save Recommendation
+        </button>
+
+        <p class="hint-text">
+          You can print or save this prediction as PDF and share it with an agriculture officer.
+        </p>
+      </section>
+
+      <!-- RIGHT COLUMN: RESULTS -->
+      <section class="single-column">
+        <section class="card">
+          <h2>3️⃣ Results</h2>
+          <div class="results">
+            <div class="result-card">
+              <h3>🌧️ Predicted Rainfall</h3>
+              <p id="rain-result">—</p>
+              <small id="rain-note" class="small-muted">Run a prediction to view rainfall estimate.</small>
+            </div>
+            <div class="result-card">
+              <h3>🌱 Recommended Crop</h3>
+              <p id="crop-result">—</p>
+              <div id="suitability-pill" class="suitability-pill hidden">
+                Suitability score: <span id="suitability-score">—</span>%
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card reveal" data-reveal-delay="0.05s">
+          <h2>🌾 Top Alternatives</h2>
+          <p class="card-subtitle">Other crops suitable for current conditions.</p>
+          <ul id="alt-list" class="alt-list">
+            <li class="alt-placeholder">Run a prediction to see alternative crops.</li>
+          </ul>
+        </section>
+
+        <section class="card reveal" data-reveal-delay="0.1s">
+          <div class="log-header">
+            <h3>📝 Advisory Note</h3>
+            <span class="log-tag">For farmers & reports</span>
+          </div>
+          <p id="advice-text" class="advice-text">
+            Click "Predict" to view advisory note based on rainfall & crop.
+          </p>
+        </section>
+
+        <!-- NEW: Farmer Action Summary -->
+        <section class="card reveal" data-reveal-delay="0.1s">
+          <h2>✅ Farmer Action Summary</h2>
+          <p id="farmer-summary" class="card-subtitle">
+            Run a prediction to see a 2–3 line summary of what you should do next.
+          </p>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>Smart Agro Assistant · Prediction</small>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

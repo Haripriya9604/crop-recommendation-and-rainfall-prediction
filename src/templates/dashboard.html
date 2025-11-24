@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Smart Agro Assistant 🌾 – Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="page">
+    <!-- NAVBAR -->
+    <nav class="nav">
+      <div class="nav-left">
+        <span class="nav-logo">🌾</span>
+        <span class="nav-title">Smart Agro Assistant</span>
+      </div>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+          <a href="{{ url_for('predict_page') }}" class="nav-link">Predict</a>
+          <a href="{{ url_for('dashboard') }}" class="nav-link nav-link-active">Dashboard</a>
+          <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="hero reveal" data-reveal-delay="0s">
+      <div class="hero-text">
+        <h1>Model & Data Dashboard.</h1>
+        <p>
+          Explore crop distribution, rainfall patterns, and feature importance used by the machine learning models.
+        </p>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="single-column">
+      <!-- LAST PREDICTION INSIGHTS -->
+      <section class="card reveal" data-reveal-delay="0.02s">
+        <h2>🧩 Last Prediction Insights</h2>
+        <p class="card-subtitle">
+          Summary of the most recent prediction you ran on the <b>Predict</b> page.
+          This helps farmers and officers quickly understand the recommendation.
+        </p>
+        <div id="last-prediction-empty" class="small-muted">
+          No prediction found yet. Go to the <b>Predict</b> page, run a prediction and come back.
+        </div>
+        <div id="last-prediction" class="results hidden"></div>
+      </section>
+
+      <!-- CROP DISTRIBUTION -->
+      <section class="card reveal" data-reveal-delay="0.08s">
+        <h2>🌾 Crop Distribution</h2>
+        <p class="card-subtitle">
+          Number of records per crop in the training dataset.
+        </p>
+        <div class="chart-card">
+          <canvas id="cropChart"></canvas>
+        </div>
+      </section>
+
+      <!-- RAINFALL BY MONTH -->
+      <section class="card reveal" data-reveal-delay="0.16s">
+        <h2>🌧️ Average Monthly Rainfall</h2>
+        <p class="card-subtitle">
+          Average total monthly rainfall (mm) calculated from IMD rainfall data.
+        </p>
+        <div class="chart-card">
+          <canvas id="rainChart"></canvas>
+        </div>
+      </section>
+
+      <!-- FEATURE IMPORTANCE -->
+      <section class="card reveal" data-reveal-delay="0.24s">
+        <h2>🧠 Crop Model Feature Importance</h2>
+        <p class="card-subtitle">
+          How strongly each input feature influences the crop decision.
+        </p>
+        <div class="chart-card">
+          <canvas id="featChart"></canvas>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>Smart Agro Assistant · Dashboard</small>
+    </footer>
+  </div>
+
+  <!-- Shared JS (scroll reveal, etc.) -->
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+  <!-- Page-specific charts script -->
+  <script>
+    const cropLabels = {{ crop_labels | tojson }};
+    const cropValues = {{ crop_values | tojson }};
+    const monthLabels = {{ month_labels | tojson }};
+    const monthValues = {{ month_values | tojson }};
+    const featLabels = {{ crop_feat_labels | tojson }};
+    const featValues = {{ crop_feat_importance | tojson }};
+
+    // 🌾 Crop distribution (bar)
+    new Chart(document.getElementById('cropChart'), {
+      type: 'bar',
+      data: {
+        labels: cropLabels,
+        datasets: [{
+          label: 'Count',
+          data: cropValues
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { ticks: { autoSkip: false, maxRotation: 60, minRotation: 45 } }
+        }
+      }
+    });
+
+    // 🌧️ Average monthly rainfall (line)
+    new Chart(document.getElementById('rainChart'), {
+      type: 'line',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Avg monthly rainfall (mm)',
+          data: monthValues,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Month' } },
+          y: { title: { display: true, text: 'Rainfall (mm)' } }
+        }
+      }
+    });
+
+    // 🧠 Feature importance (bar)
+    new Chart(document.getElementById('featChart'), {
+      type: 'bar',
+      data: {
+        labels: featLabels,
+        datasets: [{
+          label: 'Importance',
+          data: featValues
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    // 🧩 Last prediction insights from localStorage
+    (function () {
+      try {
+        const raw = localStorage.getItem("lastPrediction");
+        if (!raw) return;
+
+        const lp = JSON.parse(raw);
+        const emptyEl = document.getElementById("last-prediction-empty");
+        const container = document.getElementById("last-prediction");
+        if (!container) return;
+
+        emptyEl.style.display = "none";
+        container.classList.remove("hidden");
+
+        const crop = lp.main_crop || "—";
+        const score = typeof lp.main_crop_score === "number"
+          ? lp.main_crop_score.toFixed(1) + "%"
+          : "—";
+        const rain = typeof lp.predicted_rainfall === "number"
+          ? lp.predicted_rainfall.toFixed(2) + " mm"
+          : "—";
+        const month = lp.inputs && lp.inputs.month != null ? lp.inputs.month : "—";
+        const advice = lp.advice || "—";
+
+        container.innerHTML = `
+          <div class="result-card">
+            <h3>Recommended Crop</h3>
+            <p>${crop}</p>
+            <p class="small-muted">Suitability: ${score}</p>
+          </div>
+          <div class="result-card">
+            <h3>Predicted Rainfall</h3>
+            <p>${rain}</p>
+            <p class="small-muted">For month: ${month}</p>
+          </div>
+          <div class="result-card">
+            <h3>Insight</h3>
+            <p class="small-muted">${advice}</p>
+          </div>
+        `;
+      } catch (e) {
+        console.warn("Could not load last prediction from localStorage:", e);
+      }
+    })();
+  </script>
+</body>
+</html>

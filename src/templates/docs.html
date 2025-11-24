@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Docs · Smart Agro Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+
+    <nav class="nav">
+      <div class="nav-left">
+        <span class="nav-logo">🌾</span>
+        <span class="nav-title">Smart Agro Assistant</span>
+      </div>
+      <div class="nav-right">
+        <a href="{{ url_for('home') }}" class="nav-link">Dashboard</a>
+        <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        <a href="{{ url_for('docs') }}" class="nav-link nav-link-active">Docs</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-text">
+        <h1>Documentation & API</h1>
+        <p>
+          This page explains how the system works internally and how the Flask APIs are structured.
+          Useful for reports, viva, and technical interviews.
+        </p>
+      </div>
+    </header>
+
+    <main class="single-column">
+
+      <section class="card">
+        <h2>📦 Input Features</h2>
+        <ul>
+          <li><b>Month:</b> 1–12</li>
+          <li><b>Lag1, Lag2, Lag3:</b> Rainfall (mm) for last 3 months</li>
+          <li><b>N, P, K:</b> Soil nutrients (Nitrogen, Phosphorus, Potassium)</li>
+          <li><b>Temperature:</b> °C</li>
+          <li><b>Humidity:</b> %</li>
+          <li><b>pH:</b> Soil pH value</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>🌧️ Rainfall API</h2>
+        <p><b>Endpoint:</b> <code>POST /api/predict_rainfall</code></p>
+        <p><b>Request JSON:</b></p>
+<pre>{
+  "month": 7,
+  "lag1": 200,
+  "lag2": 150,
+  "lag3": 100
+}</pre>
+        <p><b>Response JSON:</b></p>
+<pre>{
+  "predicted_rainfall": 225.42
+}</pre>
+      </section>
+
+      <section class="card">
+        <h2>🌱 Crop Recommendation API</h2>
+        <p><b>Endpoint:</b> <code>POST /api/recommend_crop</code></p>
+        <p><b>Request JSON:</b></p>
+<pre>{
+  "N": 90,
+  "P": 40,
+  "K": 40,
+  "T": 25,
+  "H": 60,
+  "pH": 6.5,
+  "rainfall": 225.42
+}</pre>
+        <p><b>Response JSON:</b></p>
+<pre>{
+  "recommended_crop": "coffee"
+}</pre>
+      </section>
+
+      <section class="card">
+        <h2>🧮 Models & Training</h2>
+        <ul>
+          <li><b>Rainfall:</b> RandomForestRegressor on processed IMD data.</li>
+          <li><b>Crop Recommendation:</b> RandomForestClassifier on Kaggle dataset.</li>
+          <li><b>Model Files:</b> Stored as <code>.pkl</code> using Joblib (not committed to GitHub due to size).</li>
+        </ul>
+        <p>
+          For full training details, refer to <code>src/train_models.ipynb</code>.
+        </p>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <small>© Smart Agro Assistant · Documentation</small>
+    </footer>
+
+  </div>
+</body>
+</html>

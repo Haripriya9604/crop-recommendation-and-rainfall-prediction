@@ -15,6 +15,7 @@ from sklearn.metrics import (
 )
 import matplotlib.pyplot as plt
 
+# ----------------- Paths & Config -----------------
 APP_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = APP_DIR.parent
 
@@ -23,6 +24,7 @@ sys.path.insert(0, str(PROJECT_DIR))
 
 import project_config as cfg
 
+# ----------------- Load Models & Data -----------------
 rf_rain = joblib.load(cfg.RAINFALL_MODEL_PATH)
 rf_crop = joblib.load(cfg.CROP_MODEL_PATH)
 
@@ -30,29 +32,53 @@ df_crop = pd.read_csv(cfg.CROP_CSV)
 df_rain = pd.read_csv(cfg.RAINFALL_CSV, sep=";")
 df_rain.columns = df_rain.columns.str.replace('"', "")
 
-def prepare_rain_data(df):
+
+# ----------------- Helper Functions -----------------
+def prepare_rain_data(df: pd.DataFrame):
     daily_cols = [c for c in cfg.DAILY_COLS if c in df.columns]
     rain = df[[cfg.STATE_COL, cfg.DIST_COL, cfg.MONTH_COL] + daily_cols].copy()
+
     for c in daily_cols:
         rain[c] = pd.to_numeric(rain[c], errors="coerce")
+
     rain["total_rainfall"] = rain[daily_cols].sum(axis=1)
     rain = rain.sort_values([cfg.STATE_COL, cfg.DIST_COL, cfg.MONTH_COL])
+
     rain["lag1"] = rain.groupby([cfg.STATE_COL, cfg.DIST_COL])["total_rainfall"].shift(1)
     rain["lag2"] = rain.groupby([cfg.STATE_COL, cfg.DIST_COL])["total_rainfall"].shift(2)
     rain["lag3"] = rain.groupby([cfg.STATE_COL, cfg.DIST_COL])["total_rainfall"].shift(3)
+
     rain = rain.dropna(subset=["lag1", "lag2", "lag3"])
+
     feature_cols = [cfg.MONTH_COL, "lag1", "lag2", "lag3"]
     X = rain[feature_cols]
     y = rain["total_rainfall"]
     return X, y, feature_cols
 
-def predict_monthly_rainfall(model, month, lag1, lag2, lag3):
-    X = np.array([[month, lag1, lag2, lag3]])
-    return float(model.predict(X)[0])
 
-def recommend_crop(model, N, P, K, T, H, pH, rainfall):
+def predict_monthly_rainfall(month: int, lag1: float, lag2: float, lag3: float) -> float:
+    """
+    Uses rf_rain model to predict rainfall.
+    Equivalent to your snippet:
+
+        X_rain = np.array([[month, lag1, lag2, lag3]])
+        pred_rain = rf_rain.predict(X_rain)[0]
+    """
+    X = np.array([[month, lag1, lag2, lag3]])
+    return float(rf_rain.predict(X)[0])
+
+
+def recommend_crop(N, P, K, T, H, pH, rainfall):
+    """
+    Uses rf_crop model to predict crop.
+    Equivalent to your snippet:
+
+        X_crop = np.array([[N, P, K, temperature, humidity, ph, pred_rain]])
+        recommended_crop = rf_crop.predict(X_crop)[0]
+    """
     X = np.array([[N, P, K, T, H, pH, rainfall]])
-    return model.predict(X)[0]
+    return rf_crop.predict(X)[0]
+
 
 def crop_display_name(crop):
     mapping = {
@@ -80,6 +106,7 @@ def crop_display_name(crop):
         "coffee": "☕ Coffee",
     }
     return mapping.get(str(crop).lower(), crop)
+
 
 def get_sample_scenarios():
     return {
@@ -121,6 +148,8 @@ def get_sample_scenarios():
         },
     }
 
+
+# ----------------- Streamlit UI Setup -----------------
 if "inputs" not in st.session_state:
     st.session_state["inputs"] = {
         "month": 7,
@@ -137,7 +166,8 @@ if "inputs" not in st.session_state:
 
 st.set_page_config(page_title="Smart Agro Assistant", page_icon="🌾", layout="wide")
 
-st.markdown("""
+st.markdown(
+    """
     <style>
     .main {
         background: linear-gradient(135deg,#e0f2fe,#fefce8,#fdf2f8);
@@ -163,15 +193,18 @@ st.markdown("""
         font-weight: 900;
     }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
+# ----------------- Header -----------------
 header_left, header_right = st.columns([2.5, 1.5])
 
 with header_left:
     st.markdown(
         '<div class="glass-card"><div class="title-text">Smart Agro Assistant 🌾</div>'
         '<div>Rainfall forecasting and crop recommendation using ML.</div></div>',
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 with header_right:
@@ -194,6 +227,7 @@ with st.sidebar:
 
 tab_pred, tab_eval = st.tabs(["🔮 Prediction", "📊 Model Evaluation"])
 
+# ----------------- Prediction Tab -----------------
 with tab_pred:
     st.markdown('<div class="section-title">Quick Sample Scenarios</div>', unsafe_allow_html=True)
     presets = get_sample_scenarios()
@@ -241,8 +275,9 @@ with tab_pred:
 
     st.markdown("")
     if st.button("✨ Predict Rainfall & Recommend Crop"):
-        pred_rain = predict_monthly_rainfall(rf_rain, month, lag1, lag2, lag3)
-        crop_raw = recommend_crop(rf_crop, N, P, K, T, H, pH, pred_rain)
+        # --- This part is equivalent to your snippet ---
+        pred_rain = predict_monthly_rainfall(month, lag1, lag2, lag3)
+        crop_raw = recommend_crop(N, P, K, T, H, pH, pred_rain)
         crop = crop_display_name(crop_raw)
 
         colA, colB = st.columns(2)
@@ -273,6 +308,7 @@ with tab_pred:
                 }
             )
 
+# ----------------- Evaluation Tab -----------------
 with tab_eval:
     st.markdown('<div class="section-title">Rainfall Model Metrics</div>', unsafe_allow_html=True)
     Xr, yr, features_r = prepare_rain_data(df_rain)

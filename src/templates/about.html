@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Smart Agro Assistant 🌾 – About</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <!-- NAVBAR -->
+    <nav class="nav">
+      <div class="nav-left">
+        <span class="nav-logo">🌾</span>
+        <span class="nav-title">Smart Agro Assistant</span>
+      </div>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+          <a href="{{ url_for('predict_page') }}" class="nav-link">Predict</a>
+          <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+          <a href="{{ url_for('about') }}" class="nav-link nav-link-active">About</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="hero reveal" data-reveal-delay="0s">
+      <div class="hero-text">
+        <h1>About Smart Agro Assistant</h1>
+        <p>
+          A data-driven decision support system that helps farmers choose suitable crops
+          using rainfall and soil information.
+        </p>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="single-column">
+      <section class="card reveal" data-reveal-delay="0.02s">
+        <h2>🎯 Project Objective</h2>
+        <p>
+          The main goal of Smart Agro Assistant is to support farmers and agriculture stakeholders
+          in making better crop planning decisions by combining:
+        </p>
+        <ul>
+          <li>Recent rainfall history (3-month lagged rainfall).</li>
+          <li>Soil nutrients: Nitrogen (N), Phosphorus (P), Potassium (K).</li>
+          <li>Weather and soil conditions: temperature, humidity, and pH.</li>
+        </ul>
+        <p>
+          The recommendation is not meant to replace expert advice, but to give a strong, data-backed starting point.
+        </p>
+      </section>
+
+      <section class="card reveal" data-reveal-delay="0.08s">
+        <h2>🧠 Machine Learning Models</h2>
+        <ul>
+          <li>
+            <b>Rainfall Prediction:</b> Random Forest Regressor trained on IMD rainfall data
+            to estimate upcoming monthly rainfall using the previous 3 months as input.
+          </li>
+          <li>
+            <b>Crop Recommendation:</b> Random Forest Classifier trained on the Kaggle
+            Crop Recommendation dataset, mapping NPK + pH + temperature + humidity + rainfall
+            to the most suitable crop.
+          </li>
+          <li>
+            <b>Evaluation:</b> MAE/RMSE for rainfall prediction, and accuracy + classification
+            report for the crop model.
+          </li>
+        </ul>
+        <p class="card-subtitle">
+          First, rainfall is predicted. That value is then passed into the crop model as one of the features.
+        </p>
+      </section>
+
+      <section class="card reveal" data-reveal-delay="0.16s">
+        <h2>🛠️ Tech Stack</h2>
+        <ul>
+          <li><b>Backend:</b> Python, Flask, Scikit-learn, Pandas, NumPy, Joblib</li>
+          <li><b>Frontend:</b> HTML, CSS, JavaScript, Chart.js</li>
+          <li><b>Data Sources:</b> IMD Rainfall Dataset, Crop Recommendation Dataset (Kaggle)</li>
+          <li><b>Environment & Tools:</b> Virtualenv, VS Code, Git, GitHub</li>
+        </ul>
+        <p class="card-subtitle">
+          The UI is designed to be simple for farmers, yet detailed enough for project reviews and technical discussions.
+        </p>
+      </section>
+
+      <section class="card reveal" data-reveal-delay="0.24s">
+        <h2>👩‍💻 Developer & Usage Note</h2>
+        <p>
+          This project was developed by <b>Haripriya SK</b> as a final-year project
+          in the area of Data Analytics and Machine Learning.
+        </p>
+        <p>
+          <b>Usage Disclaimer:</b> This tool is intended as a decision-support system,
+          not a replacement for expert advice. Farmers should confirm crop choice, variety, and
+          management practices with local agriculture officers before final implementation.
+        </p>
+        <p>
+          <b>Contact:</b>
+          <a href="mailto:haripriyask964@gmail.com">haripriya9604@gmail.com</a>
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>Smart Agro Assistant · About</small>
+    </footer>
+  </div>
+
+  <!-- Scroll reveal + shared JS -->
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
