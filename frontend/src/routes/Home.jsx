@@ -15,7 +15,8 @@ function Home() {
     : "bg-white border border-gray-200";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Hero / Intro Section */}
       <section
         className={`${cardClass} rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/25`}
       >
@@ -41,6 +42,27 @@ function Home() {
             Go to Rainfall Prediction
           </NavLink>
         </div>
+      </section>
+
+      {/* What We Do – brief summary, no tech stack */}
+      <section className="max-w-4xl mx-auto text-center px-4">
+        <h3 className="text-2xl font-extrabold mb-3 text-emerald-500">
+          What We Do
+        </h3>
+
+        <p className={`text-sm md:text-base leading-relaxed font-semibold ${subText}`}>
+          This platform helps farmers and students understand how data can
+          guide crop planning. By combining soil nutrients, recent rainfall,
+          temperature, humidity and seasonal timing, we suggest crops that are
+          better suited for the current field condition.
+        </p>
+
+        <p className={`text-sm md:text-base mt-3 leading-relaxed font-semibold ${subText}`}>
+          Along with crop recommendation, you also get rainfall prediction,
+          simple yield insights, fertilizer guidance and a visual crop calendar.
+          Everything is designed to be easy to understand, so you can connect
+          ML outputs with real farm decisions.
+        </p>
       </section>
     </div>
   );

@@ -1,9 +1,127 @@
-import React from "react";
+// frontend/src/routes/Landing.jsx
+
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 
+// 🔹 AI-like reply logic (can be replaced with real API later)
+function getBotReply(message) {
+  const msg = (message || "").toLowerCase();
+
+  if (!msg.trim()) {
+    return "I can help you understand crop recommendation, rainfall prediction, the dashboard analytics, or how to explain this project in a viva. Ask me anything.";
+  }
+
+  if (msg.includes("crop") || msg.includes("recommend")) {
+    return (
+      "To get a crop recommendation, go to the Crop page. Enter N, P, K, rainfall lags, temperature, humidity and pH. " +
+      "The ML model then predicts the best-suited crop and also shows top-3 alternatives with probabilities."
+    );
+  }
+
+  if (msg.includes("rain") || msg.includes("rainfall") || msg.includes("monsoon")) {
+    return (
+      "On the Rainfall page, you provide the month and three lag rainfall values. " +
+      "The model predicts the expected rainfall (mm), classifies it as Very Low → Very High, " +
+      "and the UI shows how it fits into the monsoon calendar for that month."
+    );
+  }
+
+  if (msg.includes("dashboard") || msg.includes("analytics") || msg.includes("chart")) {
+    return (
+      "The Analytics Dashboard summarises your latest crop and rainfall predictions. " +
+      "It shows NPK levels, rainfall trends, environment parameters, and probability charts. " +
+      "You can use this dashboard as a storytelling tool during your demo or viva."
+    );
+  }
+
+  if (msg.includes("viva") || msg.includes("explain") || msg.includes("presentation")) {
+    return (
+      "Short viva explanation:\n" +
+      "“This is a smart agriculture decision-support system. The backend is a Flask API with trained machine learning models — " +
+      "one for crop recommendation and one for rainfall prediction. The frontend is built using React, Tailwind CSS and Recharts " +
+      "to visualise inputs and outputs in real time. Users enter soil nutrients, climate and rainfall history; the system predicts " +
+      "the best crop and expected rainfall, and gives supporting charts and agronomic tips.”"
+    );
+  }
+
+  if (msg.includes("how to use") || msg.includes("help") || msg.includes("guide")) {
+    return (
+      "Quick usage guide:\n" +
+      "1️⃣ Start with Crop or Rainfall page and enter realistic values.\n" +
+      "2️⃣ Submit to get predictions, confidence scores, tips and charts.\n" +
+      "3️⃣ Open the Dashboard to view a combined summary of your latest predictions.\n" +
+      "If you tell me what you are confused about, I can simplify that part for viva."
+    );
+  }
+
+  if (msg.includes("technology") || msg.includes("tech stack") || msg.includes("stack")) {
+    return (
+      "Tech overview: React + Vite + Tailwind on the frontend, Recharts for visualisation, and Flask + scikit-learn models on the backend. " +
+      "Models are loaded via joblib and exposed as REST APIs that the frontend calls using HTTP."
+    );
+  }
+
+  return (
+    "Understood 👍. I’m your Smart Farm Assistant. I mainly help you with:\n" +
+    "• How the crop & rainfall models work\n" +
+    "• How to use each page (Crop, Rainfall, Dashboard)\n" +
+    "• How to explain this project clearly in a viva.\n" +
+    "Try asking: “Explain crop recommendation model”, “How does rainfall prediction work?”, or “Give me a 1-minute viva summary”."
+  );
+}
+
 export default function Landing() {
   const { isDark } = useTheme();
+
+  // 🔹 Chatbot state
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [messages, setMessages] = useState([
+    {
+      sender: "bot",
+      text:
+        "Hi, I’m your AI-powered Smart Farm Assistant 🤖🌾.\n" +
+        "I can help you understand crop recommendation, rainfall prediction, the dashboard, or how to explain this project in your viva.",
+      ts: Date.now(),
+    },
+  ]);
+  const [isThinking, setIsThinking] = useState(false);
+  const chatEndRef = useRef(null);
+
+  // Auto-scroll when messages update
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isThinking]);
+
+  const handleSend = (e) => {
+    e?.preventDefault?.();
+    const trimmed = chatInput.trim();
+    if (!trimmed || isThinking) return;
+
+    const userMsg = {
+      sender: "user",
+      text: trimmed,
+      ts: Date.now(),
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setChatInput("");
+    setIsThinking(true);
+
+    // Simulate AI thinking delay, then respond
+    setTimeout(() => {
+      const botMsg = {
+        sender: "bot",
+        text: getBotReply(trimmed),
+        ts: Date.now() + 1,
+      };
+      setMessages((prev) => [...prev, botMsg]);
+      setIsThinking(false);
+    }, 550);
+  };
 
   const leftTextClass = isDark ? "text-slate-100" : "text-slate-900";
   const subTextClass = isDark ? "text-slate-300" : "text-slate-700";
@@ -18,8 +136,13 @@ export default function Landing() {
 
   const eduSubText = isDark ? "text-slate-300" : "text-slate-700";
 
+  const chatBg = isDark ? "bg-slate-950/95" : "bg-white";
+  const chatBorder = isDark ? "border-slate-700" : "border-slate-300";
+  const chatText = isDark ? "text-slate-50" : "text-slate-900";
+  const chatSub = isDark ? "text-slate-400" : "text-slate-500";
+
   return (
-    <div className="max-w-5xl mx-auto py-4 sm:py-6 space-y-8">
+    <div className="max-w-5xl mx-auto py-4 sm:py-6 space-y-8 relative">
       {/* Hero section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Left: title + description */}
@@ -92,9 +215,7 @@ export default function Landing() {
           className={`${rightCardClass} rounded-2xl shadow-lg shadow-slate-950/50 backdrop-blur-sm p-5 sm:p-6 flex flex-col justify-between space-y-4 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/30`}
         >
           <div>
-            <h3 className="text-lg font-bold mb-2">
-              What you can do here
-            </h3>
+            <h3 className="text-lg font-bold mb-2">What you can do here</h3>
             <ul className="list-disc list-inside text-sm space-y-1.5 font-semibold">
               <li>
                 Predict <span className="font-bold">rainfall</span> for a
@@ -110,25 +231,6 @@ export default function Landing() {
                 charts for soil nutrients, rainfall patterns, and model outputs.
               </li>
             </ul>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
-              <p className="font-bold text-emerald-300 mb-1">
-                Backend
-              </p>
-              <p className="text-slate-200 font-semibold">
-                Python, Flask, scikit-learn models, joblib.
-              </p>
-            </div>
-            <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-sky-500/20">
-              <p className="font-bold text-sky-300 mb-1">
-                Frontend
-              </p>
-              <p className="text-slate-200 font-semibold">
-                React, Vite, Tailwind CSS, Recharts, Chart.js.
-              </p>
-            </div>
           </div>
 
           <p className="text-[11px] text-slate-300 font-semibold">
@@ -206,9 +308,7 @@ export default function Landing() {
           <div
             className={`${eduCardClass} rounded-xl p-4 shadow-sm min-w-[260px] snap-center transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/25`}
           >
-            <h4 className="text-base font-bold mb-1">
-              Rice (Paddy)
-            </h4>
+            <h4 className="text-base font-bold mb-1">Rice (Paddy)</h4>
             <p className={`text-xs mb-2 font-semibold ${eduSubText}`}>
               Suitable for areas with good water availability.
             </p>
@@ -236,9 +336,7 @@ export default function Landing() {
           <div
             className={`${eduCardClass} rounded-xl p-4 shadow-sm min-w-[260px] snap-center transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/25`}
           >
-            <h4 className="text-base font-bold mb-1">
-              Wheat
-            </h4>
+            <h4 className="text-base font-bold mb-1">Wheat</h4>
             <p className={`text-xs mb-2 font-semibold ${eduSubText}`}>
               More suitable for cooler &amp; relatively dry seasons.
             </p>
@@ -265,9 +363,7 @@ export default function Landing() {
           <div
             className={`${eduCardClass} rounded-xl p-4 shadow-sm min-w-[260px] snap-center transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/25`}
           >
-            <h4 className="text-base font-bold mb-1">
-              Maize (Corn)
-            </h4>
+            <h4 className="text-base font-bold mb-1">Maize (Corn)</h4>
             <p className={`text-xs mb-2 font-semibold ${eduSubText}`}>
               A versatile crop suitable for many regions.
             </p>
@@ -321,6 +417,132 @@ export default function Landing() {
           </ol>
         </div>
       </section>
+
+      {/* 🌟 AI Chatbot Floating Widget */}
+
+      {/* Toggle Button */}
+      <button
+        type="button"
+        onClick={() => setChatOpen((v) => !v)}
+        className="fixed bottom-5 right-5 z-30 inline-flex items-center gap-2 rounded-full px-4 py-2.5 bg-emerald-500 text-slate-900 text-xs sm:text-sm font-bold shadow-lg shadow-emerald-500/40 hover:bg-emerald-400 hover:-translate-y-0.5 transition-all duration-300"
+      >
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-900/90 text-emerald-300 text-sm">
+          🤖
+        </span>
+        <span>{chatOpen ? "Close AI Assistant" : "Ask AI Assistant"}</span>
+      </button>
+
+      {/* Chat Panel */}
+      {chatOpen && (
+        <div
+          className={`fixed bottom-20 right-4 z-30 w-80 max-w-[90vw] rounded-2xl border ${chatBorder} ${chatBg} ${chatText} shadow-2xl shadow-black/40 flex flex-col`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/60">
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-full bg-emerald-500/10 flex items-center justify-center text-lg">
+                🤖
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold">
+                  Smart Farm AI Assistant
+                </span>
+                <span className={`text-[10px] ${chatSub}`}>
+                  Explains crop model, rainfall & dashboard
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setChatOpen(false)}
+              className="text-xs px-2 py-1 rounded-md hover:bg-slate-700/60"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="px-3 py-2 max-h-72 overflow-y-auto space-y-2 text-[11px]">
+            {messages.map((m) => (
+              <div
+                key={m.ts + m.sender}
+                className={`flex ${
+                  m.sender === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`inline-block px-3 py-2 rounded-2xl max-w-[80%] whitespace-pre-line ${
+                    m.sender === "user"
+                      ? "bg-emerald-500 text-slate-900 rounded-br-sm"
+                      : "bg-slate-800 text-slate-100 rounded-bl-sm"
+                  }`}
+                >
+                  {m.text}
+                </div>
+              </div>
+            ))}
+
+            {isThinking && (
+              <div className="flex justify-start">
+                <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-slate-800 text-slate-300 text-[10px]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-bounce" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-bounce delay-100" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-bounce delay-200" />
+                  <span className="ml-1">Thinking…</span>
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Quick suggested prompts */}
+          <div className="px-3 pb-1 flex flex-wrap gap-1">
+            {[
+              "Explain crop recommendation model",
+              "How does rainfall prediction work?",
+              "Give viva explanation in 1 minute",
+            ].map((q) => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => {
+                  if (isThinking) return;
+                  setChatInput(q);
+                }}
+                className="text-[10px] px-2 py-1 rounded-full border border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/10 transition-all"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
+          {/* Input */}
+          <form
+            onSubmit={handleSend}
+            className="flex items-center gap-2 px-3 py-2 border-t border-slate-700/60"
+          >
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="Ask something like “Explain rainfall model”"
+              className={`flex-1 text-[11px] px-2 py-1.5 rounded-md outline-none ${
+                isDark
+                  ? "bg-slate-900 border border-slate-700 text-slate-50"
+                  : "bg-slate-100 border border-slate-300 text-slate-900"
+              }`}
+            />
+            <button
+              type="submit"
+              disabled={isThinking}
+              className="text-[11px] font-bold px-3 py-1.5 rounded-md bg-emerald-500 text-slate-900 hover:bg-emerald-400 disabled:opacity-60 transition-all"
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
