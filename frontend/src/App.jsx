@@ -6,6 +6,8 @@ import Landing from "./routes/Landing";
 import CropForm from "./routes/CropForm";
 import RainfallAnalysis from "./routes/RainfallAnalysis";
 import Dashboard from "./routes/Dashboard";
+import About from "./routes/About";
+
 
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { PredictionProvider } from "./context/PredictionContext";
@@ -117,6 +119,19 @@ function AppShell() {
                   Dashboard
                 </NavLink>
               </nav>
+              
+              <NavLink
+                to="/about"
+                className={({ isActive }) =>
+                  `px-2 py-1 rounded-md transition-all ${
+                    isActive
+                      ? "bg-emerald-500 text-slate-900"
+                      : "text-slate-300 hover:bg-slate-800/80"
+                  }`
+                }
+              >
+                About
+              </NavLink>
 
               {/* Theme Toggle */}
               <button
@@ -145,8 +160,9 @@ function AppShell() {
               <Route path="/crop" element={<CropForm />} />
               <Route path="/rainfall" element={<RainfallAnalysis />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/about" element={<About />} /> 
             </Routes>
-          </div>
+          </div> 
 
           {/* ----------------------------- */}
           {/* 🌟 PROFESSIONAL MODERN FOOTER */}
